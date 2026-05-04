@@ -1,0 +1,30 @@
+name: 上海房产日报
+
+on:
+  schedule:
+    - cron: "3 1 * * *"   # UTC 01:03 = 北京时间 09:03，每天触发
+  workflow_dispatch:        # 支持手动点击触发（方便测试）
+
+jobs:
+  daily-housing-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: pip install anthropic feedparser
+
+      - name: 运行日报脚本
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_BASE_URL: ${{ secrets.CLAUDE_BASE_URL }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        run: python daily_news.py
